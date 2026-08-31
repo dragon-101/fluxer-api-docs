@@ -1,6 +1,6 @@
 // ============================================================
 //  app.js - Fluxer API Documentation
-//  Minimalist, Stripe‑style rendering with tables & syntax highlighting
+//  Shows full schema only for 2xx responses.
 // ============================================================
 
 (function() {
@@ -146,15 +146,10 @@
         // ----- Syntax highlighting for JSON -----
         highlightJSON(json) {
             if (typeof json !== 'string') json = JSON.stringify(json, null, 2);
-            // Escape HTML
             let html = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            // Highlight keys (including quoted keys)
             html = html.replace(/"([^"]+)":/g, '<span class="hljs-key">"$1"</span>:');
-            // Highlight string values
             html = html.replace(/: "([^"]*)"/g, (match, p1) => `: <span class="hljs-string">"${p1}"</span>`);
-            // Highlight numbers (including negative and floats)
             html = html.replace(/: (\d+\.?\d*)/g, (match, p1) => `: <span class="hljs-number">${p1}</span>`);
-            // Highlight booleans and null
             html = html.replace(/: (true|false|null)/g, (match, p1) => `: <span class="hljs-boolean">${p1}</span>`);
             return html;
         },
@@ -162,17 +157,14 @@
         // ----- Render a schema as a table (for object definitions) -----
         renderSchemaTable(schema, modelName) {
             if (!schema || typeof schema !== 'object') return '';
-            // If it has a $ref, resolve it
             if (schema.$ref) {
                 const resolved = this.resolveRef(schema.$ref);
                 if (resolved) return this.renderSchemaTable(resolved, modelName);
                 return `<div class="schema-notice">Referenced schema not found: ${schema.$ref}</div>`;
             }
-            // If it has properties, render table
             const props = schema.properties || {};
             const required = schema.required || [];
             if (Object.keys(props).length === 0) {
-                // Possibly a primitive or empty
                 return `<div class="schema-notice">${schema.type || 'object'} – no properties defined</div>`;
             }
 
@@ -197,7 +189,6 @@
                     fieldName += `<sup>${footnoteCount}</sup>`;
                     footnotes.push(`<sup>${footnoteCount}</sup> Optional.`);
                 }
-                // If the type is an object reference, make it a clickable link if model exists
                 const refName = this.extractRefName(propSchema);
                 if (refName && spec.schemas && spec.schemas[refName]) {
                     typeStr = `<a href="#model-${refName}" class="type-link">${refName}</a>`;
@@ -253,7 +244,6 @@
             return null;
         },
 
-        // ----- Render Intro -----
         renderIntro() {
             const tags = Object.keys(spec.tags || {});
             let html = `<h1 class="page-title">Welcome to Fluxer API</h1>
@@ -271,7 +261,6 @@
             Router.clearActiveNav();
         },
 
-        // ----- Render a tag with endpoints -----
         renderTag(tag) {
             const endpoints = spec.tags[tag];
             if (!endpoints || endpoints.length === 0) {
@@ -286,7 +275,6 @@
                 html += this.renderEndpointCard(ep, idx);
             });
 
-            // Render all schemas as data models
             if (spec.schemas && Object.keys(spec.schemas).length > 0) {
                 html += `<h2 style="margin-top:2.5rem;font-family:var(--font-mono);">Objects</h2>`;
                 for (const [name, schema] of Object.entries(spec.schemas)) {
@@ -296,10 +284,8 @@
 
             this.renderContent(html);
             Router.updateActiveNav(tag);
-            // After rendering, we need to attach click events to type links? They are just anchors, so no need.
         },
 
-        // ----- Render a single endpoint card -----
         renderEndpointCard(ep, index) {
             const method = ep.method || 'GET';
             const path = ep.path || '';
@@ -356,7 +342,7 @@
                         </details>`;
             }
 
-            // Responses - render as JSON with syntax highlighting
+            // Responses - only show schema for 2xx
             const respKeys = Object.keys(responses);
             if (respKeys.length > 0) {
                 html += `<details>
@@ -370,9 +356,16 @@
                     const resolvedSchema = this.deepResolveSchema(schema);
                     const jsonStr = Object.keys(resolvedSchema).length ? JSON.stringify(resolvedSchema, null, 2) : '';
                     const highlighted = jsonStr ? this.highlightJSON(jsonStr) : '';
+
+                    // Only render schema for 2xx responses
+                    const isSuccess = code.startsWith('2');
+                    const schemaHtml = (isSuccess && highlighted) 
+                        ? `<div class="code-block"><pre><code>${highlighted}</code></pre></div>` 
+                        : '';
+
                     html += `<div class="response-item">
                                 <div class="response-status"><strong>${code}</strong> ${desc}</div>
-                                ${highlighted ? `<div class="code-block"><pre><code>${highlighted}</code></pre></div>` : ''}
+                                ${schemaHtml}
                             </div>`;
                 });
                 html += `</details>`;
@@ -382,11 +375,8 @@
             return html;
         },
 
-        // ----- Render a data model card with table -----
         renderModelCard(name, schema) {
-            // Resolve any $ref at top level
             const resolved = this.deepResolveSchema(schema);
-            // If it's a primitive or has no properties, show as JSON? But we'll render a table if properties exist.
             const tableHtml = this.renderSchemaTable(resolved, name);
             return `<div class="model-card" id="model-${name}">
                         <div class="model-name">${name}</div>
