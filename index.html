@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluxer API Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <!-- Sidebar Overlay (for mobile) -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-icon">[ ]</span>
+                <span class="logo-text">Fluxer</span>
+            </div>
+            <button id="sidebar-close" class="sidebar-close" aria-label="Close sidebar">&times;</button>
+        </div>
+
+        <!-- Theme Switcher -->
+        <div class="theme-switcher">
+            <label for="theme-select">Theme</label>
+            <select id="theme-select">
+                <option value="light">Light</option>
+                <option value="dark" selected>Dark</option>
+                <option value="amoled">AMOLED</option>
+            </select>
+        </div>
+
+        <!-- Navigation (populated by JS) -->
+        <nav id="sidebar-nav" class="sidebar-nav">
+            <ul>
+                <!-- Dynamic items -->
+            </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+            <span>v1.0.0</span>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <!-- Header -->
+        <header class="main-header">
+            <button id="sidebar-toggle" class="hamburger" aria-label="Toggle sidebar">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="search-bar-wrapper">
+                <input type="text" id="search-input" placeholder="Search endpoints… (Ctrl+K)" readonly>
+                <span class="search-shortcut">⌘K</span>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <section id="content-area" class="content-area">
+            <!-- Loading spinner -->
+            <div id="loading-spinner" class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Loading API specification…</p>
+            </div>
+            <!-- Rendered content goes here -->
+            <div id="rendered-content" style="display: none;"></div>
+        </section>
+    </main>
+
+    <!-- Search Modal -->
+    <div id="search-modal" class="search-modal">
+        <div class="search-modal-content">
+            <div class="search-modal-header">
+                <input type="text" id="search-modal-input" placeholder="Search endpoints…" autofocus>
+                <button id="search-modal-close">&times;</button>
+            </div>
+            <div id="search-results" class="search-results"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
