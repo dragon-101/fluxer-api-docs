@@ -1,4 +1,7 @@
 # [Unofficial] Fluxer API Documentation
+> [!IMPORTANT]
+> The Official API documentation for Fluxer has been released [here](https://docs.fluxer.app), this repository is now archived.
+
 
 This repository attempts to try and make the Fluxer API more accessible for users / developers whilst the Official Fluxer Documentation is currently being written.
 
